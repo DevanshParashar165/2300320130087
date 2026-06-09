@@ -3,6 +3,7 @@ import { fetchNotifications } from "./services/api";
 import NotificationList from "./components/NotificationList";
 import { getTopNotifications } from "./utils/priority";
 import "./App.css";
+import Log from "../../../logging_middleware/log.js";
 
 function App() {
   const [error, setError] = useState("");
@@ -19,9 +20,11 @@ function App() {
 
         const data = await fetchNotifications();
         setNotifications(data);
+        await Log("frontend","info","component","Notification dashboard loaded successfully");
       } catch (err) {
         setError("Failed to load notifications");
         console.log(err);
+        await Log("frontend","error","component",err.message);
       } finally {
         setLoading(false);
       }
@@ -89,17 +92,27 @@ function App() {
           type="text"
           placeholder="Search notifications..."
           value={search}
-          onChange={(e) =>
-            setSearch(e.target.value)
-          }
+          onChange={async (e) => {
+  const value = e.target.value;
+
+  setSearch(value);
+
+  if (value.length > 2) {
+    await Log("frontend","info","component",`Search performed: ${value}`);
+  }
+}}
           className="search-input"
         />
 
         <select
           value={type}
-          onChange={(e) =>
-            setType(e.target.value)
-          }
+          onChange={async (e) => {
+    const value = e.target.value;
+
+    setType(value);
+
+    await Log( "frontend", "info", "component",`Notification filter changed to ${value}`);
+  }}
         >
           <option>All</option>
           <option>Event</option>
@@ -109,9 +122,13 @@ function App() {
 
         <select
           value={topN}
-          onChange={(e) =>
-            setTopN(Number(e.target.value))
-          }
+          onChange={async (e) => {
+    const value = Number(e.target.value);
+
+    setTopN(value);
+
+    await Log("frontend","info","component",`Top ${value} notifications selected`);
+  }}
         >
           <option value={5}>Top 5</option>
           <option value={10}>Top 10</option>
