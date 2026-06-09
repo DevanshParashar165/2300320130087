@@ -2,55 +2,99 @@ import { useEffect, useState } from "react";
 import { fetchNotifications } from "./services/api";
 import NotificationList from "./components/NotificationList";
 import { getTopNotifications } from "./utils/priority";
+import "./App.css";
 
 function App() {
-  const [notifications, setNotifications] =
-    useState([]);
-
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [notifications, setNotifications] = useState([]);
   const [type, setType] = useState("All");
-
   const [topN, setTopN] = useState(20);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     const loadNotifications = async () => {
-      const data =
-        await fetchNotifications();
+      try {
+        setLoading(true);
 
-      setNotifications(data);
+        const data = await fetchNotifications();
+        setNotifications(data);
+      } catch (err) {
+        setError("Failed to load notifications");
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
     };
 
     loadNotifications();
   }, []);
 
+  const sortedNotifications = [...notifications].sort(
+    (a, b) =>
+      new Date(b.Timestamp) - new Date(a.Timestamp)
+  );
+
   let filtered =
     type === "All"
-      ? notifications
-      : notifications.filter(
+      ? sortedNotifications
+      : sortedNotifications.filter(
           (item) => item.Type === type
         );
+
+  filtered = filtered.filter((item) =>
+    item.Message.toLowerCase().includes(
+      search.toLowerCase()
+    )
+  );
 
   filtered = getTopNotifications(
     filtered,
     topN
   );
 
-  return (
-    <div
-      style={{
-        maxWidth: "900px",
-        margin: "auto",
-        padding: "20px",
-      }}
-    >
-      <h1>Notification Dashboard</h1>
+  if (loading) {
+    return (
+      <div className="loading">
+        Loading Notifications...
+      </div>
+    );
+  }
 
-      <div
-        style={{
-          display: "flex",
-          gap: "10px",
-          marginBottom: "20px",
-        }}
-      >
+  return (
+    <div className="container">
+      <div className="dashboard-header">
+        <div>
+          <h1>Notification Dashboard</h1>
+          <p className="subtitle">
+            <br/>
+            Smart Notification Management
+          </p>
+        </div>
+
+        <div className="stats-card">
+          <span>Total Notifications</span>
+          <h2>{filtered.length}</h2>
+        </div>
+      </div>
+
+      {error && (
+        <div className="error">
+          {error}
+        </div>
+      )}
+
+      <div className="controls">
+        <input
+          type="text"
+          placeholder="Search notifications..."
+          value={search}
+          onChange={(e) =>
+            setSearch(e.target.value)
+          }
+          className="search-input"
+        />
+
         <select
           value={type}
           onChange={(e) =>

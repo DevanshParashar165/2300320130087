@@ -1,14 +1,43 @@
+import "./NotificationCard.css";
+
 function NotificationCard({ notification }) {
+  const getTypeClass = (type) => {
+    switch (type) {
+      case "Placement":
+        return "placement";
+
+      case "Result":
+        return "result";
+
+      case "Event":
+        return "event";
+
+      default:
+        return "";
+    }
+  };
+
   return (
     <div className="card">
-      <h3>{notification.Type}</h3>
+      <div className="card-header">
+        <span
+          className={`notification-badge ${getTypeClass(
+            notification.Type
+          )}`}
+        >
+          {notification.Type}
+        </span>
+      </div>
 
-      <p>{notification.Message}</p>
+      <div className="card-body">
+        <h3>{notification.Message}</h3>
 
-      <small>{notification.Timestamp}</small>
+        <p className="timestamp">
+          {notification.Timestamp}
+        </p>
+      </div>
     </div>
   );
 }
 
 export default NotificationCard;
-

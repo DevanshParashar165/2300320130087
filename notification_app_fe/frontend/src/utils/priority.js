@@ -1,7 +1,4 @@
-export const getTopNotifications = (
-  notifications,
-  limit
-) => {
+export const getTopNotifications = (notifications,limit) => {
   const priority = {
     Placement: 3,
     Result: 2,
