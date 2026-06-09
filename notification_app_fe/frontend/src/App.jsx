@@ -5,6 +5,8 @@ import { getTopNotifications } from "./utils/priority";
 import "./App.css";
 import Log from "../../../logging_middleware/log.js";
 
+const TOKEN = import.meta.env.VITE_TOKEN;
+
 function App() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -20,11 +22,11 @@ function App() {
 
         const data = await fetchNotifications();
         setNotifications(data);
-        await Log("frontend","info","component","Notification dashboard loaded successfully");
+        await Log("frontend","info","component","Notification dashboard loaded successfully",TOKEN);
       } catch (err) {
         setError("Failed to load notifications");
         console.log(err);
-        await Log("frontend","error","component",err.message);
+        await Log("frontend","error","component",err.message,TOKEN);
       } finally {
         setLoading(false);
       }
@@ -98,7 +100,7 @@ function App() {
   setSearch(value);
 
   if (value.length > 2) {
-    await Log("frontend","info","component",`Search performed: ${value}`);
+    await Log("frontend","info","component",`Search performed: ${value}`,TOKEN);
   }
 }}
           className="search-input"
@@ -111,7 +113,7 @@ function App() {
 
     setType(value);
 
-    await Log( "frontend", "info", "component",`Notification filter changed to ${value}`);
+    await Log( "frontend", "info", "component",`Notification filter changed to ${value}`,TOKEN);
   }}
         >
           <option>All</option>
@@ -127,7 +129,7 @@ function App() {
 
     setTopN(value);
 
-    await Log("frontend","info","component",`Top ${value} notifications selected`);
+    await Log("frontend","info","component",`Top ${value} notifications selected`,TOKEN);
   }}
         >
           <option value={5}>Top 5</option>
